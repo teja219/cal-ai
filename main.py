@@ -4,7 +4,7 @@ import base64
 import json
 import os
 import random
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 from PIL import Image
 import io
 import math
@@ -183,7 +183,9 @@ def _next_id(ws) -> int:
 def save_meal(data: dict) -> int:
     ws_meals = load_meals_ws()
     meal_id  = _next_id(ws_meals)
-    now      = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Use EST timezone (UTC-5)
+    est_tz = timezone(timedelta(hours=-5))
+    now      = datetime.now(est_tz).strftime("%Y-%m-%d %H:%M:%S")
 
     new_row = [
         meal_id, now,
