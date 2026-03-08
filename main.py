@@ -333,7 +333,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: #ffffff; color: #333333; }
+.stApp { background: #f0fff0; color: #333333; }
 h1, h2, h3 { font-family: 'Calibri', sans-serif !important; }
 .hero-title {
     font-family: 'Calibri', sans-serif; font-size: 2.8rem; font-weight: 800;
