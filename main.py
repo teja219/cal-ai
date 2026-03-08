@@ -309,7 +309,7 @@ confidence and health_score are 0-100."""
                         {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": img_b64}},
                         {"type": "text", "text": prompt}
                     ]
-                    model = "claude-3-haiku-20240307"
+                    model = "claude-haiku-4-5-20251001"
                 else:
                     # Use text-only model
                     prompt = f"""You are a professional nutritionist and food recognition AI.
@@ -337,7 +337,7 @@ Return ONLY a valid JSON object (no markdown, no extra text):
 confidence and health_score are 0-100."""
 
                     content = [{"type": "text", "text": prompt}]
-                    model = "claude-3-haiku-20240307"  # Cheaper model for text-only
+                    model = "claude-haiku-4-5-20251001"  # Cheaper model for text-only
 
                 response = client.messages.create(
                     model=model,
