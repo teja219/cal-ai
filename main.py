@@ -18,6 +18,7 @@ SCOPES = [
 ]
 SHEET_MEALS  = "Meals"
 SHEET_DAILY  = "Daily Summary"
+SHEET_FOODS  = "Food Config"
 
 MEAL_HEADERS = [
     "ID", "Logged At", "Food Name", "Serving Size",
@@ -28,6 +29,11 @@ MEAL_HEADERS = [
 DAILY_HEADERS = [
     "Date", "Meals", "Total Calories", "Total Protein (g)",
     "Total Carbs (g)", "Total Fat (g)",
+]
+FOOD_CONFIG_HEADERS = [
+    "Food Name", "Category", "Serving Size",
+    "Calories", "Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)",
+    "Source",
 ]
 
 # ── User Profile (80kg, 5'3") ─────────────────────────────────────────────────
@@ -44,65 +50,60 @@ PROTEIN_TARGET_G = round(USER_WEIGHT_KG * 1.6)   # 1.6g/kg
 CARBS_TARGET_G   = round(DAILY_CALORIE_TARGET * 0.45 / 4)
 FAT_TARGET_G     = round(DAILY_CALORIE_TARGET * 0.30 / 9)
 
-# ── Indian Food Database ──────────────────────────────────────────────────────
-INDIAN_FOOD_DB = {
-    # Breakfast
-    "Idli (1 piece)": {"calories": 39, "protein_g": 2, "carbs_g": 8, "fat_g": 0.4, "fiber_g": 0.5},
-    "Dosa (1 plain)": {"calories": 133, "protein_g": 3, "carbs_g": 25, "fat_g": 2.5, "fiber_g": 1},
-    "Masala Dosa": {"calories": 220, "protein_g": 5, "carbs_g": 38, "fat_g": 6, "fiber_g": 2},
-    "Poha (1 cup)": {"calories": 180, "protein_g": 3.5, "carbs_g": 33, "fat_g": 4, "fiber_g": 2},
-    "Upma (1 cup)": {"calories": 200, "protein_g": 5, "carbs_g": 32, "fat_g": 6, "fiber_g": 2},
-    "Paratha (1 plain)": {"calories": 200, "protein_g": 4, "carbs_g": 30, "fat_g": 7, "fiber_g": 2},
-    "Aloo Paratha": {"calories": 260, "protein_g": 5, "carbs_g": 40, "fat_g": 9, "fiber_g": 3},
-    "Besan Chilla (1)": {"calories": 120, "protein_g": 6, "carbs_g": 16, "fat_g": 3, "fiber_g": 2},
-    "Medu Vada (1)": {"calories": 97, "protein_g": 3.5, "carbs_g": 12, "fat_g": 4, "fiber_g": 1},
-    "Pongal (1 cup)": {"calories": 220, "protein_g": 6, "carbs_g": 36, "fat_g": 6, "fiber_g": 2},
-    # Rice dishes
-    "Steamed Rice (1 cup cooked)": {"calories": 206, "protein_g": 4, "carbs_g": 45, "fat_g": 0.4, "fiber_g": 0.6},
-    "Jeera Rice (1 cup)": {"calories": 250, "protein_g": 4.5, "carbs_g": 46, "fat_g": 5, "fiber_g": 1},
-    "Biryani Chicken (1 plate ~350g)": {"calories": 490, "protein_g": 28, "carbs_g": 55, "fat_g": 15, "fiber_g": 2},
-    "Biryani Veg (1 plate ~350g)": {"calories": 380, "protein_g": 8, "carbs_g": 60, "fat_g": 10, "fiber_g": 4},
-    "Curd Rice (1 cup)": {"calories": 175, "protein_g": 5, "carbs_g": 30, "fat_g": 4, "fiber_g": 1},
-    "Lemon Rice (1 cup)": {"calories": 230, "protein_g": 4, "carbs_g": 42, "fat_g": 5, "fiber_g": 1.5},
-    "Sambar Rice (1 cup)": {"calories": 210, "protein_g": 6, "carbs_g": 38, "fat_g": 4, "fiber_g": 3},
-    # Breads
-    "Roti/Chapati (1)": {"calories": 71, "protein_g": 2.6, "carbs_g": 15, "fat_g": 0.4, "fiber_g": 2},
-    "Puri (1)": {"calories": 116, "protein_g": 2, "carbs_g": 16, "fat_g": 5, "fiber_g": 1},
-    "Naan (1)": {"calories": 262, "protein_g": 8, "carbs_g": 45, "fat_g": 6, "fiber_g": 2},
-    # Curries & Dals
-    "Dal Tadka (1 cup)": {"calories": 190, "protein_g": 11, "carbs_g": 28, "fat_g": 5, "fiber_g": 7},
-    "Dal Makhani (1 cup)": {"calories": 250, "protein_g": 12, "carbs_g": 30, "fat_g": 9, "fiber_g": 8},
-    "Chana Masala (1 cup)": {"calories": 270, "protein_g": 14, "carbs_g": 42, "fat_g": 6, "fiber_g": 12},
-    "Rajma (1 cup)": {"calories": 240, "protein_g": 15, "carbs_g": 40, "fat_g": 4, "fiber_g": 10},
-    "Paneer Butter Masala (1 cup)": {"calories": 350, "protein_g": 16, "carbs_g": 18, "fat_g": 24, "fiber_g": 2},
-    "Palak Paneer (1 cup)": {"calories": 280, "protein_g": 14, "carbs_g": 12, "fat_g": 20, "fiber_g": 3},
-    "Butter Chicken (1 cup)": {"calories": 320, "protein_g": 25, "carbs_g": 14, "fat_g": 18, "fiber_g": 2},
-    "Chicken Tikka Masala (1 cup)": {"calories": 310, "protein_g": 28, "carbs_g": 12, "fat_g": 17, "fiber_g": 2},
-    "Aloo Sabzi (1 cup)": {"calories": 180, "protein_g": 3, "carbs_g": 28, "fat_g": 7, "fiber_g": 3},
-    "Mixed Veg Curry (1 cup)": {"calories": 130, "protein_g": 4, "carbs_g": 18, "fat_g": 5, "fiber_g": 4},
-    "Egg Curry (2 eggs)": {"calories": 250, "protein_g": 15, "carbs_g": 8, "fat_g": 18, "fiber_g": 1},
-    "Fish Curry (1 cup)": {"calories": 210, "protein_g": 22, "carbs_g": 6, "fat_g": 11, "fiber_g": 1},
-    # Snacks
-    "Samosa (1)": {"calories": 262, "protein_g": 4, "carbs_g": 32, "fat_g": 13, "fiber_g": 2},
-    "Bhaji/Pakora (2 pieces)": {"calories": 130, "protein_g": 3, "carbs_g": 16, "fat_g": 6, "fiber_g": 2},
-    "Pani Puri (6 pieces)": {"calories": 180, "protein_g": 3, "carbs_g": 32, "fat_g": 5, "fiber_g": 2},
-    "Bhel Puri (1 plate)": {"calories": 200, "protein_g": 5, "carbs_g": 38, "fat_g": 4, "fiber_g": 3},
-    "Dhokla (2 pieces)": {"calories": 120, "protein_g": 5, "carbs_g": 20, "fat_g": 2, "fiber_g": 2},
-    "Khakhra (1)": {"calories": 60, "protein_g": 2, "carbs_g": 10, "fat_g": 1.5, "fiber_g": 1},
-    "Biscuits Marie (3)": {"calories": 90, "protein_g": 1.5, "carbs_g": 15, "fat_g": 2.5, "fiber_g": 0.5},
-    # Sweets
-    "Gulab Jamun (1)": {"calories": 150, "protein_g": 2, "carbs_g": 26, "fat_g": 5, "fiber_g": 0.3},
-    "Halwa (1/2 cup)": {"calories": 280, "protein_g": 4, "carbs_g": 42, "fat_g": 10, "fiber_g": 1},
-    "Kheer (1 cup)": {"calories": 240, "protein_g": 6, "carbs_g": 38, "fat_g": 7, "fiber_g": 0.5},
-    "Rasgulla (1)": {"calories": 107, "protein_g": 3, "carbs_g": 20, "fat_g": 2, "fiber_g": 0},
-    "Ladoo Besan (1)": {"calories": 180, "protein_g": 3.5, "carbs_g": 24, "fat_g": 8, "fiber_g": 1},
-    # Drinks
-    "Chai with milk (1 cup)": {"calories": 55, "protein_g": 2, "carbs_g": 8, "fat_g": 2, "fiber_g": 0},
-    "Lassi Sweet (1 glass)": {"calories": 190, "protein_g": 6, "carbs_g": 30, "fat_g": 5, "fiber_g": 0},
-    "Buttermilk/Chaas (1 glass)": {"calories": 60, "protein_g": 3, "carbs_g": 7, "fat_g": 2, "fiber_g": 0},
-    "Mango Lassi (1 glass)": {"calories": 230, "protein_g": 5, "carbs_g": 38, "fat_g": 5, "fiber_g": 1},
-}
+# ── Indian Food Seed Data (written to Sheets on first run) ───────────────────
+INDIAN_FOOD_SEED = [
+    # name, category, serving_size, cal, prot, carbs, fat, fiber, source
+    ("Idli (1 piece)",                  "Breakfast",    "1 piece (~50g)",       39,  2.0,  8.0, 0.4, 0.5, "ICMR/NIN"),
+    ("Dosa (1 plain)",                  "Breakfast",    "1 dosa (~80g)",       133,  3.0, 25.0, 2.5, 1.0, "ICMR/NIN"),
+    ("Masala Dosa",                     "Breakfast",    "1 dosa (~150g)",      220,  5.0, 38.0, 6.0, 2.0, "ICMR/NIN"),
+    ("Poha (1 cup)",                    "Breakfast",    "1 cup (~120g)",       180,  3.5, 33.0, 4.0, 2.0, "ICMR/NIN"),
+    ("Upma (1 cup)",                    "Breakfast",    "1 cup (~150g)",       200,  5.0, 32.0, 6.0, 2.0, "ICMR/NIN"),
+    ("Paratha (1 plain)",               "Breakfast",    "1 paratha (~60g)",    200,  4.0, 30.0, 7.0, 2.0, "ICMR/NIN"),
+    ("Aloo Paratha",                    "Breakfast",    "1 paratha (~100g)",   260,  5.0, 40.0, 9.0, 3.0, "ICMR/NIN"),
+    ("Besan Chilla (1)",                "Breakfast",    "1 chilla (~80g)",     120,  6.0, 16.0, 3.0, 2.0, "ICMR/NIN"),
+    ("Medu Vada (1)",                   "Breakfast",    "1 vada (~50g)",        97,  3.5, 12.0, 4.0, 1.0, "ICMR/NIN"),
+    ("Pongal (1 cup)",                  "Breakfast",    "1 cup (~180g)",       220,  6.0, 36.0, 6.0, 2.0, "ICMR/NIN"),
+    ("Steamed Rice (1 cup cooked)",     "Rice Dishes",  "1 cup (~180g)",       206,  4.0, 45.0, 0.4, 0.6, "ICMR/NIN"),
+    ("Jeera Rice (1 cup)",              "Rice Dishes",  "1 cup (~180g)",       250,  4.5, 46.0, 5.0, 1.0, "ICMR/NIN"),
+    ("Biryani Chicken (1 plate)",       "Rice Dishes",  "1 plate (~350g)",     490, 28.0, 55.0,15.0, 2.0, "ICMR/NIN"),
+    ("Biryani Veg (1 plate)",           "Rice Dishes",  "1 plate (~350g)",     380,  8.0, 60.0,10.0, 4.0, "ICMR/NIN"),
+    ("Curd Rice (1 cup)",               "Rice Dishes",  "1 cup (~180g)",       175,  5.0, 30.0, 4.0, 1.0, "ICMR/NIN"),
+    ("Lemon Rice (1 cup)",              "Rice Dishes",  "1 cup (~180g)",       230,  4.0, 42.0, 5.0, 1.5, "ICMR/NIN"),
+    ("Sambar Rice (1 cup)",             "Rice Dishes",  "1 cup (~200g)",       210,  6.0, 38.0, 4.0, 3.0, "ICMR/NIN"),
+    ("Roti/Chapati (1)",                "Breads",       "1 roti (~30g)",        71,  2.6, 15.0, 0.4, 2.0, "ICMR/NIN"),
+    ("Puri (1)",                        "Breads",       "1 puri (~30g)",       116,  2.0, 16.0, 5.0, 1.0, "ICMR/NIN"),
+    ("Naan (1)",                        "Breads",       "1 naan (~90g)",       262,  8.0, 45.0, 6.0, 2.0, "ICMR/NIN"),
+    ("Dal Tadka (1 cup)",               "Curries & Dals","1 cup (~200g)",      190, 11.0, 28.0, 5.0, 7.0, "ICMR/NIN"),
+    ("Dal Makhani (1 cup)",             "Curries & Dals","1 cup (~200g)",      250, 12.0, 30.0, 9.0, 8.0, "ICMR/NIN"),
+    ("Chana Masala (1 cup)",            "Curries & Dals","1 cup (~200g)",      270, 14.0, 42.0, 6.0,12.0, "ICMR/NIN"),
+    ("Rajma (1 cup)",                   "Curries & Dals","1 cup (~200g)",      240, 15.0, 40.0, 4.0,10.0, "ICMR/NIN"),
+    ("Paneer Butter Masala (1 cup)",    "Curries & Dals","1 cup (~200g)",      350, 16.0, 18.0,24.0, 2.0, "ICMR/NIN"),
+    ("Palak Paneer (1 cup)",            "Curries & Dals","1 cup (~200g)",      280, 14.0, 12.0,20.0, 3.0, "ICMR/NIN"),
+    ("Butter Chicken (1 cup)",          "Curries & Dals","1 cup (~200g)",      320, 25.0, 14.0,18.0, 2.0, "ICMR/NIN"),
+    ("Chicken Tikka Masala (1 cup)",    "Curries & Dals","1 cup (~200g)",      310, 28.0, 12.0,17.0, 2.0, "ICMR/NIN"),
+    ("Aloo Sabzi (1 cup)",              "Curries & Dals","1 cup (~180g)",      180,  3.0, 28.0, 7.0, 3.0, "ICMR/NIN"),
+    ("Mixed Veg Curry (1 cup)",         "Curries & Dals","1 cup (~200g)",      130,  4.0, 18.0, 5.0, 4.0, "ICMR/NIN"),
+    ("Egg Curry (2 eggs)",              "Curries & Dals","2 eggs in curry",    250, 15.0,  8.0,18.0, 1.0, "ICMR/NIN"),
+    ("Fish Curry (1 cup)",              "Curries & Dals","1 cup (~200g)",      210, 22.0,  6.0,11.0, 1.0, "ICMR/NIN"),
+    ("Samosa (1)",                      "Snacks",       "1 piece (~60g)",      262,  4.0, 32.0,13.0, 2.0, "ICMR/NIN"),
+    ("Bhaji/Pakora (2 pieces)",         "Snacks",       "2 pieces (~60g)",     130,  3.0, 16.0, 6.0, 2.0, "ICMR/NIN"),
+    ("Pani Puri (6 pieces)",            "Snacks",       "6 pieces",            180,  3.0, 32.0, 5.0, 2.0, "ICMR/NIN"),
+    ("Bhel Puri (1 plate)",             "Snacks",       "1 plate (~120g)",     200,  5.0, 38.0, 4.0, 3.0, "ICMR/NIN"),
+    ("Dhokla (2 pieces)",               "Snacks",       "2 pieces (~80g)",     120,  5.0, 20.0, 2.0, 2.0, "ICMR/NIN"),
+    ("Khakhra (1)",                     "Snacks",       "1 piece (~15g)",       60,  2.0, 10.0, 1.5, 1.0, "ICMR/NIN"),
+    ("Biscuits Marie (3)",              "Snacks",       "3 biscuits (~21g)",    90,  1.5, 15.0, 2.5, 0.5, "ICMR/NIN"),
+    ("Gulab Jamun (1)",                 "Sweets",       "1 piece (~50g)",      150,  2.0, 26.0, 5.0, 0.3, "ICMR/NIN"),
+    ("Halwa (1/2 cup)",                 "Sweets",       "1/2 cup (~100g)",     280,  4.0, 42.0,10.0, 1.0, "ICMR/NIN"),
+    ("Kheer (1 cup)",                   "Sweets",       "1 cup (~200ml)",      240,  6.0, 38.0, 7.0, 0.5, "ICMR/NIN"),
+    ("Rasgulla (1)",                    "Sweets",       "1 piece (~50g)",      107,  3.0, 20.0, 2.0, 0.0, "ICMR/NIN"),
+    ("Ladoo Besan (1)",                 "Sweets",       "1 piece (~40g)",      180,  3.5, 24.0, 8.0, 1.0, "ICMR/NIN"),
+    ("Chai with milk (1 cup)",          "Drinks",       "1 cup (~150ml)",       55,  2.0,  8.0, 2.0, 0.0, "ICMR/NIN"),
+    ("Lassi Sweet (1 glass)",           "Drinks",       "1 glass (~250ml)",    190,  6.0, 30.0, 5.0, 0.0, "ICMR/NIN"),
+    ("Buttermilk/Chaas (1 glass)",      "Drinks",       "1 glass (~250ml)",     60,  3.0,  7.0, 2.0, 0.0, "ICMR/NIN"),
+    ("Mango Lassi (1 glass)",           "Drinks",       "1 glass (~250ml)",    230,  5.0, 38.0, 5.0, 1.0, "ICMR/NIN"),
+]
 
+# ── Auth & sheet helpers ──────────────────────────────────────────────────────
 # ── Auth & sheet helpers ──────────────────────────────────────────────────────
 
 @st.cache_resource
@@ -228,6 +229,75 @@ def _refresh_daily_summary():
         ])
     if rows:
         ws.append_rows(rows, value_input_option="USER_ENTERED")
+
+
+# ── Food Config (Google Sheets backed) ───────────────────────────────────────
+
+def load_foods_ws():
+    sp = get_spreadsheet()
+    return get_or_create_worksheet(sp, SHEET_FOODS, FOOD_CONFIG_HEADERS)
+
+
+def _seed_food_config(ws):
+    """Write seed rows if the sheet has only a header row."""
+    existing = ws.get_all_values()
+    if len(existing) > 1:
+        return  # already seeded
+    rows = [list(row) for row in INDIAN_FOOD_SEED]
+    ws.append_rows(rows, value_input_option="USER_ENTERED")
+    # Light formatting: alternate row bg handled client-side; just freeze header
+    ws.freeze(rows=1)
+
+
+@st.cache_data(ttl=120)
+def get_food_config() -> dict:
+    """
+    Returns {food_name: {category, serving_size, calories, protein_g, carbs_g, fat_g, fiber_g, source}}
+    Cached for 2 minutes so repeated renders don't hammer Sheets.
+    """
+    ws = load_foods_ws()
+    _seed_food_config(ws)
+    records = ws.get_all_records()  # list of dicts keyed by header
+    db = {}
+    for r in records:
+        name = str(r.get("Food Name", "")).strip()
+        if not name:
+            continue
+        db[name] = {
+            "category":    str(r.get("Category", "Other")).strip(),
+            "serving_size":str(r.get("Serving Size", "1 serving")).strip(),
+            "calories":    float(r.get("Calories", 0) or 0),
+            "protein_g":   float(r.get("Protein (g)", 0) or 0),
+            "carbs_g":     float(r.get("Carbs (g)", 0) or 0),
+            "fat_g":       float(r.get("Fat (g)", 0) or 0),
+            "fiber_g":     float(r.get("Fiber (g)", 0) or 0),
+            "source":      str(r.get("Source", "Custom")).strip(),
+        }
+    return db
+
+
+def add_food_to_config(name: str, category: str, serving_size: str,
+                       calories: float, protein_g: float, carbs_g: float,
+                       fat_g: float, fiber_g: float, source: str = "Custom") -> bool:
+    """Append a new food row to the Food Config sheet. Returns True on success."""
+    ws = load_foods_ws()
+    # Check for duplicate name
+    existing_names = [str(r.get("Food Name","")).strip().lower() for r in ws.get_all_records()]
+    if name.strip().lower() in existing_names:
+        return False  # duplicate
+    ws.append_row([name, category, serving_size, calories, protein_g, carbs_g, fat_g, fiber_g, source],
+                  value_input_option="USER_ENTERED")
+    get_food_config.clear()  # bust cache
+    return True
+
+
+def delete_food_from_config(food_name: str):
+    """Remove a row from Food Config by food name."""
+    ws = load_foods_ws()
+    cell = ws.find(food_name, in_column=1)
+    if cell:
+        ws.delete_rows(cell.row)
+    get_food_config.clear()
 
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -591,108 +661,170 @@ with tab_analyze:
             )
 
 # ════════════════════════════════════════════════════════════════════════════════
-# TAB 2 – Indian Foods Quick Log
+# TAB 2 – Indian Foods Quick Log (Sheets-backed)
 # ════════════════════════════════════════════════════════════════════════════════
 with tab_indian:
     st.markdown("### 🇮🇳 Indian Food Quick Log")
-    st.caption("Pre-calibrated nutritional values from ICMR/NIN database. Click to add to today's log.")
 
-    search_query = st.text_input("🔍 Search Indian foods", placeholder="e.g., biryani, roti, dal...")
+    with st.spinner("Loading food database from Google Sheets..."):
+        food_db = get_food_config()
 
-    categories = {
-        "🌅 Breakfast": ["Idli (1 piece)", "Dosa (1 plain)", "Masala Dosa", "Poha (1 cup)", "Upma (1 cup)",
-                          "Paratha (1 plain)", "Aloo Paratha", "Besan Chilla (1)", "Medu Vada (1)", "Pongal (1 cup)"],
-        "🍚 Rice Dishes": ["Steamed Rice (1 cup cooked)", "Jeera Rice (1 cup)", "Biryani Chicken (1 plate ~350g)",
-                            "Biryani Veg (1 plate ~350g)", "Curd Rice (1 cup)", "Lemon Rice (1 cup)", "Sambar Rice (1 cup)"],
-        "🫓 Breads": ["Roti/Chapati (1)", "Puri (1)", "Naan (1)", "Paratha (1 plain)", "Aloo Paratha"],
-        "🍛 Curries & Dals": ["Dal Tadka (1 cup)", "Dal Makhani (1 cup)", "Chana Masala (1 cup)", "Rajma (1 cup)",
-                               "Paneer Butter Masala (1 cup)", "Palak Paneer (1 cup)", "Butter Chicken (1 cup)",
-                               "Chicken Tikka Masala (1 cup)", "Aloo Sabzi (1 cup)", "Mixed Veg Curry (1 cup)",
-                               "Egg Curry (2 eggs)", "Fish Curry (1 cup)"],
-        "🥟 Snacks": ["Samosa (1)", "Bhaji/Pakora (2 pieces)", "Pani Puri (6 pieces)", "Bhel Puri (1 plate)",
-                       "Dhokla (2 pieces)", "Khakhra (1)", "Biscuits Marie (3)"],
-        "🍮 Sweets": ["Gulab Jamun (1)", "Halwa (1/2 cup)", "Kheer (1 cup)", "Rasgulla (1)", "Ladoo Besan (1)"],
-        "🥛 Drinks": ["Chai with milk (1 cup)", "Lassi Sweet (1 glass)", "Buttermilk/Chaas (1 glass)", "Mango Lassi (1 glass)"],
-    }
+    total_foods = len(food_db)
+    custom_count = sum(1 for v in food_db.values() if v["source"] == "Custom")
+    st.caption(
+        f"{total_foods} foods in database · {custom_count} custom · "
+        f"[Edit directly in Sheets ↗]({sheet_url})"
+    )
 
-    # Filter if search
-    if search_query.strip():
-        filtered = {k: v for k, v in INDIAN_FOOD_DB.items()
-                    if search_query.lower() in k.lower()}
-        if filtered:
-            st.markdown(f"**Found {len(filtered)} items:**")
-            for food_name, nutrients in filtered.items():
-                col_info, col_btn = st.columns([4, 1])
-                with col_info:
-                    st.markdown(
-                        f'<div class="ingredient-item"><b>{food_name}</b> · '
-                        f'🔥{nutrients["calories"]} kcal · 🥩{nutrients["protein_g"]}g · '
-                        f'🍞{nutrients["carbs_g"]}g · 🧈{nutrients["fat_g"]}g</div>',
-                        unsafe_allow_html=True
-                    )
-                with col_btn:
-                    if st.button("➕ Add", key=f"search_{food_name}"):
-                        data = {
-                            "food_name": food_name,
-                            "serving_size": "Standard serving",
-                            "calories": nutrients["calories"],
-                            "protein_g": nutrients["protein_g"],
-                            "carbs_g": nutrients["carbs_g"],
-                            "fat_g": nutrients["fat_g"],
-                            "fiber_g": nutrients.get("fiber_g", 0),
-                            "sugar_g": 0,
-                            "health_score": 70,
-                            "confidence": 99,
-                            "tips": "From ICMR/NIN Indian nutrition database.",
-                            "ingredients": [{"name": food_name, "calories": nutrients["calories"], "amount": "1 serving"}]
-                        }
-                        with st.spinner("Saving..."):
-                            meal_id = save_meal(data)
-                        st.success(f"✅ Added {food_name} (Row #{meal_id})")
-                        st.rerun()
+    # ── Sub-tabs: Browse / Add New ────────────────────────────────────────────
+    sub_browse, sub_add, sub_manage = st.tabs(["📋 Browse & Log", "➕ Add New Food", "⚙️ Manage"])
+
+    with sub_browse:
+        search_query = st.text_input("🔍 Search", placeholder="e.g., biryani, roti, dal...", key="food_search")
+
+        # Build category → foods mapping dynamically from Sheets data
+        cat_map: dict[str, list[str]] = {}
+        for fname, fdata in food_db.items():
+            cat = fdata["category"]
+            cat_map.setdefault(cat, []).append(fname)
+
+        CAT_ICONS = {
+            "Breakfast": "🌅", "Rice Dishes": "🍚", "Breads": "🫓",
+            "Curries & Dals": "🍛", "Snacks": "🥟", "Sweets": "🍮",
+            "Drinks": "🥛", "Other": "🍽️",
+        }
+
+        def _log_food_row(food_name: str, nutrients: dict, key_prefix: str):
+            col_info, col_qty, col_btn = st.columns([3, 1, 1])
+            with col_info:
+                src_badge = "" if nutrients["source"] in ("ICMR/NIN", "") else f' <span style="color:#a8ff78;font-size:0.68rem">★ {nutrients["source"]}</span>'
+                st.markdown(
+                    f'<div style="padding:5px 0"><b>{food_name}</b>{src_badge}<br>'
+                    f'<span style="color:#555;font-size:0.75rem">{nutrients["serving_size"]}</span><br>'
+                    f'<span style="color:#666;font-size:0.78rem">'
+                    f'🔥{nutrients["calories"]:.0f} · 🥩{nutrients["protein_g"]}g · '
+                    f'🍞{nutrients["carbs_g"]}g · 🧈{nutrients["fat_g"]}g</span></div>',
+                    unsafe_allow_html=True
+                )
+            with col_qty:
+                qty = st.number_input("Qty", value=1.0, min_value=0.5, step=0.5,
+                                      key=f"qty_{key_prefix}", label_visibility="collapsed")
+            with col_btn:
+                if st.button("➕", key=f"add_{key_prefix}"):
+                    meal_data = {
+                        "food_name": food_name + (f" ×{qty}" if qty != 1 else ""),
+                        "serving_size": f"{qty} × {nutrients['serving_size']}",
+                        "calories":  round(nutrients["calories"]  * qty),
+                        "protein_g": round(nutrients["protein_g"] * qty, 1),
+                        "carbs_g":   round(nutrients["carbs_g"]   * qty, 1),
+                        "fat_g":     round(nutrients["fat_g"]     * qty, 1),
+                        "fiber_g":   round(nutrients["fiber_g"]   * qty, 1),
+                        "sugar_g":   0,
+                        "health_score": 70,
+                        "confidence": 99,
+                        "tips": f"From {nutrients['source']} food database.",
+                        "ingredients": [{"name": food_name,
+                                         "calories": round(nutrients["calories"] * qty),
+                                         "amount": f"{qty} serving"}]
+                    }
+                    with st.spinner("Saving..."):
+                        mid = save_meal(meal_data)
+                    st.success(f"✅ Added {food_name} (Row #{mid})")
+                    st.rerun()
+
+        if search_query.strip():
+            q = search_query.lower()
+            matches = {k: v for k, v in food_db.items() if q in k.lower() or q in v["category"].lower()}
+            if matches:
+                st.markdown(f"**{len(matches)} result(s) for '{search_query}':**")
+                for idx, (fname, fdata) in enumerate(matches.items()):
+                    _log_food_row(fname, fdata, f"srch_{idx}_{fname[:20]}")
+            else:
+                st.info("No results. Try a different term or add it using the ➕ tab above.")
         else:
-            st.info("No matching foods found in the database.")
-    else:
-        for cat_idx, (cat_name, food_list) in enumerate(categories.items()):
-            with st.expander(cat_name):
-                for food_name in food_list:
-                    if food_name not in INDIAN_FOOD_DB:
-                        continue
-                    nutrients = INDIAN_FOOD_DB[food_name]
-                    # Use cat_idx + food_name to guarantee uniqueness across categories
-                    safe_key = f"c{cat_idx}_{food_name}"
-                    col_info, col_qty, col_btn = st.columns([3, 1, 1])
-                    with col_info:
-                        st.markdown(
-                            f'<div style="padding:6px 0"><b>{food_name}</b><br>'
-                            f'<span style="color:#666;font-size:0.8rem">'
-                            f'🔥{nutrients["calories"]} · 🥩{nutrients["protein_g"]}g · '
-                            f'🍞{nutrients["carbs_g"]}g · 🧈{nutrients["fat_g"]}g</span></div>',
-                            unsafe_allow_html=True
-                        )
-                    with col_qty:
-                        qty = st.number_input("Qty", value=1.0, min_value=0.5, step=0.5,
-                                              key=f"qty_{safe_key}", label_visibility="collapsed")
-                    with col_btn:
-                        if st.button("➕", key=f"add_{safe_key}"):
-                            data = {
-                                "food_name": f"{food_name}" + (f" ×{qty}" if qty != 1 else ""),
-                                "serving_size": f"{qty} × standard serving",
-                                "calories": round(nutrients["calories"] * qty),
-                                "protein_g": round(nutrients["protein_g"] * qty, 1),
-                                "carbs_g": round(nutrients["carbs_g"] * qty, 1),
-                                "fat_g": round(nutrients["fat_g"] * qty, 1),
-                                "fiber_g": round(nutrients.get("fiber_g", 0) * qty, 1),
-                                "sugar_g": 0,
-                                "health_score": 70,
-                                "confidence": 99,
-                                "tips": "From ICMR/NIN Indian nutrition database.",
-                                "ingredients": [{"name": food_name, "calories": round(nutrients["calories"] * qty), "amount": f"{qty} serving"}]
-                            }
-                            with st.spinner("Saving..."):
-                                meal_id = save_meal(data)
-                            st.success(f"✅ Added! (Row #{meal_id})")
-                            st.rerun()
+            for cat_idx, (cat, foods) in enumerate(sorted(cat_map.items())):
+                icon = CAT_ICONS.get(cat, "🍽️")
+                with st.expander(f"{icon} {cat}  ({len(foods)})"):
+                    for food_name in sorted(foods):
+                        nutrients = food_db[food_name]
+                        _log_food_row(food_name, nutrients, f"cat{cat_idx}_{food_name[:30]}")
+
+    # ── Add New Food ─────────────────────────────────────────────────────────
+    with sub_add:
+        st.markdown("#### Add a new food to your database")
+        st.caption("It will appear in Browse & Log immediately and be saved permanently in Google Sheets.")
+
+        existing_cats = sorted(set(v["category"] for v in food_db.values()))
+
+        with st.form("add_food_form", clear_on_submit=True):
+            nf_name     = st.text_input("Food Name *", placeholder="e.g., Dhansak (1 cup)")
+            col_cat1, col_cat2 = st.columns(2)
+            with col_cat1:
+                nf_cat_select = st.selectbox("Category", existing_cats + ["+ New category"])
+            with col_cat2:
+                nf_cat_new  = st.text_input("New category name", placeholder="Only if '+ New' selected")
+            nf_serving  = st.text_input("Serving Size", placeholder="e.g., 1 cup (~200g)", value="1 serving")
+
+            st.markdown("**Nutrition per serving:**")
+            nc1, nc2, nc3, nc4 = st.columns(4)
+            nf_cal  = nc1.number_input("Calories",   min_value=0, step=5,   value=0)
+            nf_prot = nc2.number_input("Protein (g)", min_value=0.0, step=0.5, value=0.0)
+            nf_carb = nc3.number_input("Carbs (g)",   min_value=0.0, step=0.5, value=0.0)
+            nf_fat  = nc4.number_input("Fat (g)",     min_value=0.0, step=0.5, value=0.0)
+            nc5, nc6 = st.columns(2)
+            nf_fiber = nc5.number_input("Fiber (g)",  min_value=0.0, step=0.5, value=0.0)
+            nf_src   = nc6.text_input("Source", value="Custom", placeholder="e.g., USDA, home recipe")
+
+            # Macro sanity check
+            macro_est = nf_prot * 4 + nf_carb * 4 + nf_fat * 9
+            if nf_cal > 0 and abs(nf_cal - macro_est) > 30:
+                st.warning(f"⚠️ Macro estimate: {macro_est:.0f} kcal vs {nf_cal} entered — double-check values.")
+
+            submitted = st.form_submit_button("💾 Save to Food Database")
+            if submitted:
+                if not nf_name.strip():
+                    st.error("Food name is required.")
+                else:
+                    final_cat = nf_cat_new.strip() if nf_cat_select == "+ New category" and nf_cat_new.strip() else nf_cat_select
+                    ok = add_food_to_config(
+                        name=nf_name.strip(), category=final_cat,
+                        serving_size=nf_serving.strip() or "1 serving",
+                        calories=nf_cal, protein_g=nf_prot, carbs_g=nf_carb,
+                        fat_g=nf_fat, fiber_g=nf_fiber, source=nf_src.strip() or "Custom"
+                    )
+                    if ok:
+                        st.success(f"✅ '{nf_name}' added to the database! It will appear in Browse immediately.")
+                        st.rerun()
+                    else:
+                        st.error(f"A food named '{nf_name}' already exists. Use a unique name.")
+
+    # ── Manage (view all + delete) ────────────────────────────────────────────
+    with sub_manage:
+        st.markdown("#### Food Database")
+        st.caption(
+            f"All {total_foods} foods are stored in the **Food Config** tab of your Google Sheet. "
+            f"You can edit values directly there — changes reflect here within ~2 minutes."
+        )
+
+        show_custom_only = st.checkbox("Show custom foods only", value=False)
+        items = [(k, v) for k, v in food_db.items() if not show_custom_only or v["source"] == "Custom"]
+        items.sort(key=lambda x: (x[1]["category"], x[0]))
+
+        for fname, fdata in items:
+            col_i, col_d = st.columns([5, 1])
+            with col_i:
+                st.markdown(
+                    f'<div class="log-row">'
+                    f'<span><b>{fname}</b> <span class="log-time">{fdata["category"]} · {fdata["source"]}</span></span>'
+                    f'<span style="color:#666;font-size:0.8rem">🔥{fdata["calories"]:.0f} · 🥩{fdata["protein_g"]}g · 🍞{fdata["carbs_g"]}g · 🧈{fdata["fat_g"]}g</span>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+            with col_d:
+                if st.button("🗑️", key=f"del_food_{fname}"):
+                    delete_food_from_config(fname)
+                    st.success(f"Deleted '{fname}'")
+                    st.rerun()
 
 # ════════════════════════════════════════════════════════════════════════════════
 # TAB 3 – Today
