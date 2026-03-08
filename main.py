@@ -255,20 +255,32 @@ with tab_analyze:
     )
     st.markdown('<div class="upload-hint">JPG · PNG · WEBP supported</div>', unsafe_allow_html=True)
 
-    if uploaded_file:
-        image = Image.open(uploaded_file)
-        st.image(image, use_container_width=True, caption="")
+    text_input = st.text_area(
+        "Or describe your meal in text",
+        height=100,
+        placeholder="e.g., a plate of grilled chicken breast with brown rice and broccoli"
+    )
+
+    analyze_enabled = uploaded_file is not None or text_input.strip()
+
+    if analyze_enabled:
+        if uploaded_file:
+            image = Image.open(uploaded_file)
+            st.image(image, use_container_width=True, caption="")
 
         if st.button("🔍 Analyze Meal"):
             with st.spinner("Analyzing your meal..."):
-                buf = io.BytesIO()
-                fmt = image.format or "JPEG"
-                image.save(buf, format=fmt)
-                img_b64 = base64.standard_b64encode(buf.getvalue()).decode()
-                media_type = f"image/{fmt.lower()}"
-
                 client = anthropic.Anthropic(api_key=st.secrets["anthropic"]["api_key"])
-                prompt = """You are a professional nutritionist and food recognition AI.
+
+                if uploaded_file:
+                    # Use vision model
+                    buf = io.BytesIO()
+                    fmt = image.format or "JPEG"
+                    image.save(buf, format=fmt)
+                    img_b64 = base64.standard_b64encode(buf.getvalue()).decode()
+                    media_type = f"image/{fmt.lower()}"
+
+                    prompt = """You are a professional nutritionist and food recognition AI.
 Analyze the food in this image and return ONLY a valid JSON object (no markdown, no extra text):
 
 {
@@ -290,13 +302,47 @@ Analyze the food in this image and return ONLY a valid JSON object (no markdown,
 }
 confidence and health_score are 0-100."""
 
-                response = client.messages.create(
-                    model="claude-3-haiku-20240307",
-                    max_tokens=1000,
-                    messages=[{"role": "user", "content": [
+                    if text_input.strip():
+                        prompt += f"\n\nAdditional description provided by user: {text_input.strip()}"
+
+                    content = [
                         {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": img_b64}},
                         {"type": "text", "text": prompt}
-                    ]}]
+                    ]
+                    model = "claude-3-haiku-20240307"
+                else:
+                    # Use text-only model
+                    prompt = f"""You are a professional nutritionist and food recognition AI.
+Analyze the food described in this text: "{text_input.strip()}"
+
+Return ONLY a valid JSON object (no markdown, no extra text):
+
+{{
+  "food_name": "Name of the dish",
+  "confidence": 85,
+  "calories": 520,
+  "protein_g": 28,
+  "carbs_g": 45,
+  "fat_g": 18,
+  "fiber_g": 5,
+  "sugar_g": 8,
+  "serving_size": "1 plate (~350g)",
+  "ingredients": [
+    {{"name": "Chicken breast", "calories": 165, "amount": "150g"}},
+    {{"name": "Brown rice", "calories": 215, "amount": "120g"}}
+  ],
+  "health_score": 72,
+  "tips": "Short nutritionist advice."
+}}
+confidence and health_score are 0-100."""
+
+                    content = [{"type": "text", "text": prompt}]
+                    model = "claude-3-haiku-20240307"  # Cheaper model for text-only
+
+                response = client.messages.create(
+                    model=model,
+                    max_tokens=1000,
+                    messages=[{"role": "user", "content": content}]
                 )
 
                 raw = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
