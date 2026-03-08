@@ -3,6 +3,7 @@ import anthropic
 import base64
 import json
 import os
+import random
 from datetime import datetime, date
 from PIL import Image
 import io
@@ -10,6 +11,30 @@ import math
 
 import gspread
 from google.oauth2.service_account import Credentials
+
+# ── Motivational Quotes ───────────────────────────────────────────────────────
+MOTIVATIONAL_QUOTES = [
+    "Every healthy choice you make is a victory for your body and mind.",
+    "Nutrition is not just about eating, it's about nourishing your body to live a healthier life.",
+    "Small changes in your diet can lead to big improvements in your health.",
+    "Your body deserves the best fuel – choose wisely, eat mindfully.",
+    "Healthy eating is a form of self-respect.",
+    "The food you eat can be either the safest and most powerful form of medicine or the slowest form of poison.",
+    "Take care of your body. It's the only place you have to live.",
+    "You are what you eat, so don't be fast, cheap, easy, or fake.",
+    "Eating healthy is not a punishment – it's a gift to yourself.",
+    "Your future self will thank you for the healthy choices you're making today.",
+    "A healthy outside starts from the inside.",
+    "Good nutrition creates health in all areas of our existence.",
+    "The greatest wealth is health.",
+    "Let food be thy medicine and medicine be thy food.",
+    "Health is not valued till sickness comes.",
+    "An apple a day keeps the doctor away.",
+    "Eat breakfast like a king, lunch like a prince, and dinner like a pauper.",
+    "The first wealth is health.",
+    "To eat is a necessity, but to eat intelligently is an art.",
+    "Your body hears everything your mind says – stay positive and nourish well."
+]
 
 # ── Google Sheets config ──────────────────────────────────────────────────────
 SCOPES = [
@@ -306,93 +331,100 @@ st.set_page_config(page_title="Cal AI – Food Analyzer", page_icon="🥗", layo
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: #0d0f12; color: #f0ede8; }
-h1, h2, h3 { font-family: 'Syne', sans-serif !important; }
+.stApp { background: #ffffff; color: #333333; }
+h1, h2, h3 { font-family: 'Calibri', sans-serif !important; }
 .hero-title {
-    font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800;
-    background: linear-gradient(135deg, #a8ff78, #78ffd6);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-family: 'Calibri', sans-serif; font-size: 2.8rem; font-weight: 800;
+    color: #000000;
     letter-spacing: -1px; line-height: 1.1; margin-bottom: 0.2rem;
 }
-.hero-sub { color: #888; font-size: 1rem; font-weight: 300; margin-bottom: 0.5rem; }
+.hero-sub { color: #666666; font-size: 1rem; font-weight: 300; margin-bottom: 0.5rem; }
 .targets-bar {
-    background: #111820; border: 1px solid #1e2a38; border-radius: 12px;
-    padding: 10px 16px; font-size: 0.82rem; color: #6b8ba4; margin-bottom: 1rem;
+    background: #f0f0f0; border: 1px solid #cccccc; border-radius: 12px;
+    padding: 10px 16px; font-size: 0.82rem; color: #666666; margin-bottom: 1rem;
     display: flex; gap: 18px; flex-wrap: wrap;
 }
-.targets-bar span { color: #8ab4c8; font-weight: 500; }
+.targets-bar span { color: #333333; font-weight: 500; }
 .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 1.5rem 0; }
 .macro-card {
-    background: #161a20; border: 1px solid #2a2f38; border-radius: 16px;
+    background: #ffffff; border: 1px solid #dddddd; border-radius: 16px;
     padding: 18px 14px; text-align: center; transition: transform 0.2s;
 }
 .macro-card:hover { transform: translateY(-2px); }
-.macro-value { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 700; line-height: 1; }
-.macro-label { font-size: 0.72rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+.macro-value { font-family: 'Calibri', sans-serif; font-size: 1.7rem; font-weight: 700; line-height: 1; }
+.macro-label { font-size: 0.72rem; color: #999999; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
 .cal-value  { color: #a8ff78; }
 .prot-value { color: #78d4ff; }
 .carb-value { color: #ffcc78; }
 .fat-value  { color: #ff9f78; }
-.upload-hint { text-align: center; color: #555; font-size: 0.85rem; margin-top: 0.5rem; }
+.upload-hint { text-align: center; color: #666666; font-size: 0.85rem; margin-top: 0.5rem; }
 .food-badge {
-    display: inline-block; background: #1e2530; border: 1px solid #2e3a4a;
-    border-radius: 50px; padding: 6px 18px; font-family: 'Syne', sans-serif;
-    font-size: 1.1rem; font-weight: 600; color: #f0ede8; margin-bottom: 1rem;
+    display: inline-block; background: #f0f0f0; border: 1px solid #cccccc;
+    border-radius: 50px; padding: 6px 18px; font-family: 'Calibri', sans-serif;
+    font-size: 1.1rem; font-weight: 600; color: #333333; margin-bottom: 1rem;
 }
 .ingredient-item {
-    background: #161a20; border-left: 3px solid #2a2f38; border-radius: 0 10px 10px 0;
-    padding: 10px 16px; margin-bottom: 8px; font-size: 0.9rem; color: #c0bdb8;
+    background: #f9f9f9; border-left: 3px solid #cccccc; border-radius: 0 10px 10px 0;
+    padding: 10px 16px; margin-bottom: 8px; font-size: 0.9rem; color: #666666;
 }
-.conf-bar-bg { background: #1e2530; border-radius: 99px; height: 6px; margin-top: 6px; }
+.conf-bar-bg { background: #e0e0e0; border-radius: 99px; height: 6px; margin-top: 6px; }
 .conf-bar-fill { height: 6px; border-radius: 99px; background: linear-gradient(90deg, #a8ff78, #78ffd6); }
 .tip-box {
-    background: #111820; border: 1px dashed #2a3545; border-radius: 12px;
-    padding: 14px 18px; color: #8a9ab0; font-size: 0.82rem; margin-top: 1rem;
+    background: #f0f0f0; border: 1px dashed #cccccc; border-radius: 12px;
+    padding: 14px 18px; color: #666666; font-size: 0.82rem; margin-top: 1rem;
 }
 .log-row {
     display: flex; justify-content: space-between; align-items: center;
-    background: #161a20; border-radius: 10px; padding: 10px 16px;
+    background: #f9f9f9; border-radius: 10px; padding: 10px 16px;
     margin-bottom: 6px; font-size: 0.88rem;
 }
-.log-time { color: #555; font-size: 0.75rem; }
+.log-time { color: #999999; font-size: 0.75rem; }
 .db-badge {
-    display: inline-block; background: #0d1a14; border: 1px solid #1a4028;
-    border-radius: 8px; padding: 4px 12px; font-size: 0.75rem; color: #34a853; margin-bottom: 1rem;
+    display: inline-block; background: #f0f0f0; border: 1px solid #cccccc;
+    border-radius: 8px; padding: 4px 12px; font-size: 0.75rem; color: #2e7d32; margin-bottom: 1rem;
 }
-.progress-bar-bg { background: #1e2530; border-radius: 99px; height: 10px; margin: 4px 0 12px 0; }
+.progress-bar-bg { background: #e0e0e0; border-radius: 99px; height: 10px; margin: 4px 0 12px 0; }
 .progress-bar-fill { height: 10px; border-radius: 99px; transition: width 0.4s; }
 .progress-over { background: linear-gradient(90deg, #ff6b6b, #ff4444); }
-.section-label { font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.section-label { font-size: 0.75rem; color: #999999; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
 .indian-food-card {
-    background: #161a20; border: 1px solid #222830; border-radius: 12px;
+    background: #ffffff; border: 1px solid #dddddd; border-radius: 12px;
     padding: 12px 16px; margin-bottom: 8px; cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
 }
-.indian-food-card:hover { border-color: #a8ff78; background: #1a2018; }
-hr { border-color: #1e2530; }
+.indian-food-card:hover { border-color: #a8ff78; background: #f5f5f5; }
+hr { border-color: #cccccc; }
 .stButton > button {
     background: linear-gradient(135deg, #a8ff78, #78ffd6) !important;
-    color: #0d0f12 !important; font-family: 'Syne', sans-serif !important;
+    color: #ffffff !important; font-family: 'Calibri', sans-serif !important;
     font-weight: 700 !important; border: none !important; border-radius: 50px !important;
     padding: 0.6rem 2rem !important; font-size: 1rem !important; width: 100%;
 }
 .stButton > button:hover { opacity: 0.9; }
 [data-testid="stFileUploaderDropzone"] {
-    background: #161a20 !important; border: 2px dashed #2a3040 !important; border-radius: 16px !important;
+    background: #f9f9f9 !important; border: 2px dashed #cccccc !important; border-radius: 16px !important;
 }
 .edit-box {
-    background: #111820; border: 1px solid #a8ff7855; border-radius: 16px;
+    background: #f0f0f0; border: 1px solid #cccccc; border-radius: 16px;
     padding: 20px; margin: 1rem 0;
 }
-.edit-box-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #a8ff78; margin-bottom: 12px; }
+.hero-quote {
+    font-style: italic; color: #666666; font-size: 0.9rem; margin-bottom: 1rem;
+    text-align: center; padding: 10px; background: #f9f9f9; border-radius: 8px;
+    border-left: 4px solid #a8ff78;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.markdown('<div class="hero-title">Cal AI</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-sub">Snap your meal → accurate nutrition facts, Indian food ready</div>', unsafe_allow_html=True)
+
+# Random motivational quote
+random_quote = random.choice(MOTIVATIONAL_QUOTES)
+st.markdown(f'<div class="hero-quote">💡 {random_quote}</div>', unsafe_allow_html=True)
 
 # Show daily targets
 st.markdown(f"""
