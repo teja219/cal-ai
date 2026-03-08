@@ -337,7 +337,7 @@ Return ONLY a valid JSON object (no markdown, no extra text):
 confidence and health_score are 0-100."""
 
                     content = [{"type": "text", "text": prompt}]
-                    model = "claude-haiku-4-5-20251001"  # Cheaper model for text-only
+                    model = "claude-sonnet-4-6"  # Cheaper model for text-only
 
                 response = client.messages.create(
                     model=model,
