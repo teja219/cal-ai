@@ -653,12 +653,14 @@ with tab_indian:
         else:
             st.info("No matching foods found in the database.")
     else:
-        for cat_name, food_list in categories.items():
+        for cat_idx, (cat_name, food_list) in enumerate(categories.items()):
             with st.expander(cat_name):
                 for food_name in food_list:
                     if food_name not in INDIAN_FOOD_DB:
                         continue
                     nutrients = INDIAN_FOOD_DB[food_name]
+                    # Use cat_idx + food_name to guarantee uniqueness across categories
+                    safe_key = f"c{cat_idx}_{food_name}"
                     col_info, col_qty, col_btn = st.columns([3, 1, 1])
                     with col_info:
                         st.markdown(
@@ -670,9 +672,9 @@ with tab_indian:
                         )
                     with col_qty:
                         qty = st.number_input("Qty", value=1.0, min_value=0.5, step=0.5,
-                                              key=f"qty_{food_name}", label_visibility="collapsed")
+                                              key=f"qty_{safe_key}", label_visibility="collapsed")
                     with col_btn:
-                        if st.button("➕", key=f"add_{food_name}"):
+                        if st.button("➕", key=f"add_{safe_key}"):
                             data = {
                                 "food_name": f"{food_name}" + (f" ×{qty}" if qty != 1 else ""),
                                 "serving_size": f"{qty} × standard serving",
