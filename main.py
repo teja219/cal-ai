@@ -8,6 +8,13 @@ from datetime import datetime, date, timezone, timedelta
 from PIL import Image
 import io
 import math
+from coach_features import (
+    aggregate_daily_totals,
+    build_weekly_win_message,
+    compute_day_score,
+    compute_logging_streak,
+    suggest_meals_for_gaps,
+)
 
 import gspread
 from google.oauth2.service_account import Credentials
@@ -447,8 +454,8 @@ st.markdown(
 )
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab_analyze, tab_indian, tab_today, tab_history, tab_charts = st.tabs([
-    "📸 Analyze", "🇮🇳 Indian Foods", "📅 Today", "🗂️ History", "📊 Charts"
+tab_analyze, tab_indian, tab_today, tab_history, tab_charts, tab_coach = st.tabs([
+    "📸 Analyze", "🇮🇳 Indian Foods", "📅 Today", "🗂️ History", "📊 Charts", "🚀 Coach"
 ])
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1131,3 +1138,85 @@ with tab_charts:
                 insights.append("✅ Great work! Your nutrition is well-balanced this week.")
 
             st.markdown('<div class="tip-box"><b>🧠 Weekly Insights</b><br>' + '<br>'.join(insights) + '</div>', unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# TAB 6 – Coach Mode
+# ════════════════════════════════════════════════════════════════════════════════
+with tab_coach:
+    st.markdown("### 🚀 Super Coach Mode")
+    st.caption("Gamified consistency tracking + personalized food suggestions powered by your logs.")
+
+    all_meals = get_all_meals()
+    if not all_meals:
+        st.info("Log your first meal to activate Coach Mode.")
+    else:
+        daily_totals = aggregate_daily_totals(all_meals)
+        sorted_days = sorted(daily_totals.keys())
+        today_key = date.today().isoformat()
+        today_totals = daily_totals.get(today_key, {"cal": 0, "prot": 0, "carb": 0, "fat": 0, "fiber": 0, "meals": 0})
+
+        targets = {
+            "cal": DAILY_CALORIE_TARGET,
+            "prot": PROTEIN_TARGET_G,
+            "carb": CARBS_TARGET_G,
+            "fat": FAT_TARGET_G,
+            "fiber": 25,
+        }
+
+        streak = compute_logging_streak(daily_totals)
+        today_score = compute_day_score(today_totals, targets)
+
+        recent_scores = [compute_day_score(daily_totals[d], targets) for d in sorted_days[-7:]]
+        avg_week_score = sum(recent_scores) / len(recent_scores) if recent_scores else 0
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("🔥 Logging Streak", f"{streak} days")
+        col2.metric("🎯 Today Nutrition Score", f"{today_score}/100")
+        col3.metric("📈 7-Day Avg Score", f"{avg_week_score:.0f}/100")
+
+        st.markdown(
+            f'<div class="tip-box"><b>Weekly Win</b><br>{build_weekly_win_message(streak, avg_week_score)}</div>',
+            unsafe_allow_html=True,
+        )
+
+        # Smart gaps + recommendations
+        gaps = {
+            "prot": max(PROTEIN_TARGET_G - today_totals.get("prot", 0), 0),
+            "fiber": max(25 - today_totals.get("fiber", 0), 0),
+        }
+        recs = suggest_meals_for_gaps(INDIAN_FOOD_SEED, gaps, limit=3)
+
+        st.markdown("#### 🧠 Smart Suggestions for the Rest of Today")
+        st.caption(
+            f"Remaining gaps: protein {gaps['prot']:.0f}g · fiber {gaps['fiber']:.0f}g"
+        )
+
+        if recs:
+            for r in recs:
+                st.markdown(
+                    f"""
+                    <div class="log-row">
+                        <div>
+                            <b>{r['name']}</b><br>
+                            <span class="log-time">{r['category']} · {r['serving']}</span>
+                        </div>
+                        <div style="text-align:right">
+                            🔥 {r['cal']} kcal<br>
+                            🥩 {r['prot']}g · 🌾 {r['fiber']}g
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.success("You're already close to your goals — awesome job! 🎉")
+
+        st.markdown("#### ⚡ Quick Challenges")
+        challenge_done = 0
+        c1 = st.checkbox("Log at least 3 meals today")
+        c2 = st.checkbox("Hit ≥ 80% of protein target")
+        c3 = st.checkbox("Reach 20g+ fiber")
+        challenge_done += int(c1) + int(c2) + int(c3)
+        st.progress(challenge_done / 3)
+        if challenge_done == 3:
+            st.success("🏆 Challenge complete! You're crushing today.")
