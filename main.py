@@ -221,7 +221,8 @@ def get_all_meals() -> list[dict]:
 
 
 def get_today_meals() -> list[dict]:
-    today = date.today().isoformat()
+    est_tz = timezone(timedelta(hours=-5))
+    today = datetime.now(est_tz).date().isoformat()
     return [r for r in get_all_meals() if str(r.get("Logged At", "")).startswith(today)]
 
 
