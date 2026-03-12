@@ -219,11 +219,29 @@ def get_all_meals() -> list[dict]:
     records = ws.get_all_records()
     return records
 
-
+EST_TZ = timezone(timedelta(hours=-5))
 def get_today_meals() -> list[dict]:
-    est_tz = timezone(timedelta(hours=-5))
-    today = datetime.now(est_tz).date().isoformat()
-    return [r for r in get_all_meals() if str(r.get("Logged At", "")).startswith(today)]
+    today = datetime.now(EST_TZ).date()
+    results = []
+    for r in get_all_meals():
+        raw = str(r.get("Logged At", "")).strip()
+        if not raw:
+            continue
+        try:
+            # Handle both "2026-03-12 14:30:00" and "3/12/2026 14:30:00" formats
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%m/%d/%Y %H:%M:%S", "%m/%d/%Y"):
+                try:
+                    parsed = datetime.strptime(raw, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            else:
+                continue
+            if parsed == today:
+                results.append(r)
+        except Exception:
+            continue
+    return results
 
 
 def delete_meal(meal_id: int):
