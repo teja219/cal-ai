@@ -7,6 +7,8 @@ import random
 from datetime import datetime, date, timezone, timedelta
 from PIL import Image
 import io
+from zoneinfo import ZoneInfo
+
 import math
 from coach_features import (
     aggregate_daily_totals,
@@ -191,8 +193,8 @@ def save_meal(data: dict) -> int:
     ws_meals = load_meals_ws()
     meal_id  = _next_id(ws_meals)
     # Use EST timezone (UTC-5)
-    est_tz = timezone(timedelta(hours=-5))
-    now      = datetime.now(est_tz).strftime("%Y-%m-%d %H:%M:%S")
+    est_tz = ZoneInfo("America/New_York")
+    now = datetime.now(est_tz).strftime("%Y-%m-%d %H:%M:%S")
 
     new_row = [
         meal_id, now,
@@ -890,7 +892,8 @@ with tab_indian:
 # TAB 3 – Today
 # ════════════════════════════════════════════════════════════════════════════════
 with tab_today:
-    st.markdown(f"### {date.today().strftime('%A, %B %d')}")
+    est_time = datetime.now(ZoneInfo("America/New_York"))
+    st.markdown(f"### {est_time.strftime('%A, %B %d')}")
     with st.spinner("Loading today's meals..."):
         today_meals = get_today_meals()
 
