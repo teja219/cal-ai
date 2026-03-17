@@ -221,8 +221,8 @@ def get_all_meals() -> list[dict]:
     records = ws.get_all_records()
     return records
 
-EST_TZ = timezone(timedelta(hours=-5))
 def get_today_meals() -> list[dict]:
+    EST_TZ = ZoneInfo("America/New_York")
     today = datetime.now(EST_TZ).date()
     results = []
     for r in get_all_meals():
