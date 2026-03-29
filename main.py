@@ -21,6 +21,40 @@ from coach_features import (
 import gspread
 from google.oauth2.service_account import Credentials
 
+def compress_image_for_llm(image, max_size=1024, quality=85):
+    """
+    Compress and resize image for efficient LLM processing.
+    
+    Args:
+        image: PIL Image object
+        max_size: Maximum dimension (width or height) in pixels
+        quality: JPEG quality (1-100, higher = better quality)
+    
+    Returns:
+        tuple: (compressed_image_bytes, media_type)
+    """
+    # Convert to RGB if necessary (for JPEG compatibility)
+    if image.mode not in ('RGB', 'L'):
+        image = image.convert('RGB')
+    
+    # Resize if larger than max_size
+    width, height = image.size
+    if max(width, height) > max_size:
+        if width > height:
+            new_width = max_size
+            new_height = int(height * max_size / width)
+        else:
+            new_height = max_size
+            new_width = int(width * max_size / height)
+        image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    
+    # Save as JPEG with compression
+    buf = io.BytesIO()
+    image.save(buf, format='JPEG', quality=quality, optimize=True)
+    compressed_bytes = buf.getvalue()
+    
+    return compressed_bytes, 'image/jpeg'
+
 # ── Motivational Quotes ───────────────────────────────────────────────────────
 MOTIVATIONAL_QUOTES = [
     "Every healthy choice you make is a victory for your body and mind.",
@@ -597,11 +631,9 @@ with tab_analyze:
                 client = anthropic.Anthropic(api_key=st.secrets["anthropic"]["api_key"])
 
                 if uploaded_file:
-                    buf = io.BytesIO()
-                    fmt = image.format or "JPEG"
-                    image.save(buf, format=fmt)
-                    img_b64 = base64.standard_b64encode(buf.getvalue()).decode()
-                    media_type = f"image/{fmt.lower()}"
+                    # Compress image for efficient LLM processing
+                    compressed_bytes, media_type = compress_image_for_llm(image)
+                    img_b64 = base64.standard_b64encode(compressed_bytes).decode()
 
                     prompt = VISION_PROMPT
                     if text_input.strip():
